@@ -1,0 +1,82 @@
+.container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+.bg-topLeft {
+  position: absolute;
+  top: 0px;
+  left: 0;
+  width: 250px;
+  height: 250px;
+  background: url(../assets/login/bg-topLeft.svg) center no-repeat;
+}
+.bg-bottomRight {
+  position: absolute;
+  bottom: 0px;
+  right: 0;
+  width: 250px;
+  height: 250px;
+  background: url(../assets/login/bg-bottomRight.svg) center no-repeat;
+  background-size: contain;
+}
+.bg-bottomLeft {
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  width: 250px;
+  height: 250px;
+  background: url(../assets/login/bg-bottomLeft.svg) center no-repeat;
+  background-size: contain;
+}
+.bg-topRight {
+  position: absolute;
+  top: 0px;
+  right: 0;
+  width: 250px;
+  height: 250px;
+  background: url(../assets/login/bg-topRight.svg) center no-repeat;
+  background-size: contain;
+}
+
+.card {
+  transform: translateY(100px);
+  margin: 0 auto;
+  width: 900px;
+  height: 500px;
+  display: flex;
+  border-radius: 3%;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.05),
+    -5px -5px 10px rgba(0, 0, 0, 0.05);
+  .left {
+    width: 49%;
+    background: url("../assets/login/card.svg") center no-repeat;
+    background-size: 75% 75%;
+    background-color: #d6e0fc;
+    border-top-left-radius: 3%;
+    border-bottom-left-radius: 3%;
+  }
+  .right {
+    border-top-left-radius: 3%;
+    border-bottom-left-radius: 3%;
+    display: flex;
+    flex-direction: column;
+    .info {
+      margin-left: 100px;
+      margin-top: 50px;
+      color: #3b3f92;
+      .title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+    }
+    .login-form {
+      margin: 30px 100px;
+
+      .login-form-button {
+        margin-right: 10px;
+      }
+    }
+  }
+}
