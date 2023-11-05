@@ -1,0 +1,22 @@
+.shopContainer {
+  width: 100%;
+  height: 100%;
+
+  .header {
+    padding: 15px 15px 20px 15px;
+    box-sizing: border-box;
+    border-bottom: 1px solid rgb(230, 224, 224);
+    .headerTitle {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .headerInfo {
+      color: #555555;
+    }
+  }
+
+  .goodList {
+    margin-top: 60px;
+  }
+}

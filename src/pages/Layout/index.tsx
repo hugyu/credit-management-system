@@ -2,7 +2,7 @@ import "./index.scss";
 import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  UploadOutlined,
+  ShopOutlined,
   UserOutlined,
   GoldOutlined,
   LogoutOutlined,
@@ -40,8 +40,8 @@ function LayoutScreen() {
               },
               {
                 key: "3",
-                icon: <UploadOutlined />,
-                label: "nav 3",
+                icon: <ShopOutlined />,
+                label: <Link to={"/shop"}>商店</Link>,
               },
               {
                 key: "4",
