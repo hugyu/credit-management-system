@@ -1,0 +1,32 @@
+.container {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  .layout {
+    height: 100vh;
+    width: 100%;
+    .logo-vertical {
+      width: 180px;
+      height: 100px;
+      background: url(../../assets/layout/logo.png) center no-repeat;
+      background-size: contain;
+    }
+    .ant-layout-header {
+      position: relative;
+      .user-info {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding-right: 20px;
+        color: #000;
+        .user-name {
+          margin-right: 20px;
+        }
+      }
+      .user-logout {
+        display: inline-block;
+        cursor: pointer;
+      }
+    }
+  }
+}

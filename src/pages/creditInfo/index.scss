@@ -1,0 +1,17 @@
+.Creditcontainer {
+  padding: 30px;
+  box-sizing: border-box;
+  .creHead {
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    height: 160px;
+    position: relative;
+    margin-bottom: 50px;
+    .creBtn {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+    }
+  }
+}
