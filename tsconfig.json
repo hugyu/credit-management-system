@@ -24,7 +24,7 @@
     "isolatedModules": true, // 将每个文件作为单独的模块
     "noEmit": false, // 不输出(意思是不编译代码，只执行类型检查)
     "jsx": "react-jsx",
-    "noUnusedLocals": true, // 报告未使用的本地变量的错误
+    "noUnusedLocals": false, // 报告未使用的本地变量的错误
     "noUnusedParameters": false, // 报告未使用参数的错误
     "experimentalDecorators": true, // 启用对ES装饰器的实验性支持
   },

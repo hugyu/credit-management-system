@@ -1,5 +1,5 @@
 import "./index.scss";
-import zxcvbn from 'zxcvbn';
+import zxcvbn from "zxcvbn";
 
 import {
   LockOutlined,
@@ -8,7 +8,7 @@ import {
   EyeTwoTone,
   EyeInvisibleOutlined,
 } from "@ant-design/icons";
-
+import { useNavigate } from "react-router-dom";
 import {
   Button,
   Col,
@@ -16,41 +16,71 @@ import {
   Form,
   Input,
   Row,
-  Space,
+  // Space,
   Checkbox,
   Tooltip,
   Progress,
+  message,
 } from "antd";
 import { useState } from "react";
+import { http } from "../common/util";
+import { FieldLoginType, FieldReqType } from "@/types/Form";
+import { ResponseDataType } from "@/types/req";
+import { setToken } from "../common/token";
 
 function Login() {
-   // 获取上下文 form 实例
-   const [form] = Form.useForm();
-   // 监听密码的改变
-  const password = Form.useWatch('pwd', form);
-  console.log(password)
-  
+  // 获取上下文 form 实例
+  const [form] = Form.useForm();
+  // 监听密码的改变
+  const password = Form.useWatch("password", form);
   const watchStrength = (password: string): number => {
-    const analysisValue = zxcvbn(password)
+    const analysisValue = zxcvbn(password);
     // score得分只有0~4，且只有整数范围并没有小数
-    return (analysisValue.score + 1) * 20
-  }
-
-
+    return (analysisValue.score + 1) * 20;
+  };
+  // drawer是否打开
   const [open, setOpen] = useState(false);
-
+  //注册的时候submit是否禁用
+  const [disable, setDisable] = useState(true);
+  // 打开drawer
   const showDrawer = () => {
     setOpen(true);
   };
-
+  // 关闭drawer
   const onClose = () => {
     setOpen(false);
   };
-  //   type FieldType = {
-  //     username?: string;
-  //     password?: string;
-  //     remember?: string;
-  //   };
+  // 页面跳转
+  const navigate = useNavigate();
+  // 登录逻辑
+  const loginReq = async (formLoginValue: FieldLoginType) => {
+    const res = await http.post("/login", { ...formLoginValue });
+    const data: ResponseDataType = res.data
+    if (data.code === 1) {
+      message.success(data.message, 1,loginSuccess)
+    } else if (data.code === 2) {
+      message.error(data.message,2)
+    } else if (data.code === -1) {
+      message.warning(data.message,2)
+    }
+  };
+  // 登录后的操作
+  const loginSuccess = () => {
+    setToken('login_success_njupt')
+    navigate('/index')
+  }
+  // 注册逻辑
+  const registerReq = async (formReqValue: FieldReqType) => {
+    const res = await http.post("/register", { ...formReqValue });
+    const data:ResponseDataType=res.data
+    if (data.code === -2) {
+      message.error(data.message,2,()=>form.resetFields())
+    } else if (data.code === -1) {
+      message.warning('网络错误',2)
+    } else if (data.code === 1) {
+      message.success(data.message,2,onClose)
+    }
+  };
   return (
     <div className="container">
       <div className="bg-topLeft"></div>
@@ -68,6 +98,7 @@ function Login() {
             name="normal_login"
             className="login-form"
             initialValues={{ remember: true }}
+            onFinish={loginReq}
           >
             <Form.Item
               name="username"
@@ -128,20 +159,17 @@ function Login() {
             paddingBottom: 80,
           },
         }}
-        extra={
-          <Space>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={onClose} type="primary">
-              Submit
-            </Button>
-          </Space>
-        }
       >
-        <Form layout="vertical" hideRequiredMark form={form}>
-          <Row gutter={16} justify={"center"}>
-            <Col span={12}>
+        <Form
+          layout="vertical"
+          hideRequiredMark
+          form={form}
+          onFinish={registerReq}
+        >
+          <Row gutter={16}>
+            <Col span={15}>
               <Form.Item
-                name="name"
+                name="username"
                 label="Name"
                 rules={[{ required: true, message: "Please enter user name" }]}
               >
@@ -155,14 +183,15 @@ function Login() {
                       />
                     </Tooltip>
                   }
+                  maxLength={10}
                 />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16} justify={"center"}>
-            <Col span={12}>
+          <Row gutter={16}>
+            <Col span={15}>
               <Form.Item
-                name="pwd"
+                name="password"
                 label="Password"
                 rules={[
                   { required: true, message: "Please enter user password" },
@@ -170,7 +199,6 @@ function Login() {
               >
                 <Input.Password
                   placeholder="input password"
-                  
                   iconRender={(visible) =>
                     visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                   }
@@ -178,57 +206,64 @@ function Login() {
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16} justify={"center"}>
-            <Col span={12}>
+          <Row gutter={16}>
+            <Col span={15}>
               <Form.Item
-                name="confirmPwd"
+                name="confirmPassword"
                 label="ConfirmPassword"
                 rules={[
                   {
                     required: true,
-                    message: 'Please confirm your password!',
+                    message: "Please confirm your password!",
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
-                      if (!value || getFieldValue('pwd') === value) {
+                      if (!value || getFieldValue("password") === value) {
+                        setDisable(false);
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('The new password that you entered do not match!'));
+                      return Promise.reject(
+                        new Error(
+                          "The new password that you entered do not match!"
+                        )
+                      );
                     },
                   }),
                 ]}
               >
                 <Input.Password
                   placeholder="confirm password"
-                  
                   iconRender={(visible) =>
                     visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
                   }
-                  
                 />
               </Form.Item>
             </Col>
           </Row>
-          <Row gutter={16} justify={"center"}>
-            <Col span={12}>
-             
-              
+          <Row gutter={16}>
+            <Col span={15}>
               <Progress
-                  percent={password ? watchStrength(password) : 0}
-                  steps={5}
-                  size={[35,8]}
-                  showInfo={false}
-                  strokeColor={[
-                    "#e74242",
-                    "#EFBD47",
-                    "#ffa500",
-                    "#1bbf1b",
-                    "#008000",
-                  ]}
-                />
-                
-                
-              
+                percent={password ? watchStrength(password) : 0}
+                steps={5}
+                size={[48, 6]}
+                showInfo={false}
+                strokeColor={[
+                  "#e74242",
+                  "#EFBD47",
+                  "#ffa500",
+                  "#1bbf1b",
+                  "#008000",
+                ]}
+              />
+            </Col>
+          </Row>
+          <Row gutter={16} justify={"center"}>
+            <Col span={15}>
+              <Form.Item style={{ marginTop: "10px" }}>
+                <Button type="primary" htmlType="submit" disabled={disable}>
+                  submit
+                </Button>
+              </Form.Item>
             </Col>
           </Row>
         </Form>
