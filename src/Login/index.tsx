@@ -66,6 +66,8 @@ function Login() {
   };
   // 登录后的操作
   const loginSuccess = () => {
+    console.log('success');
+    
     setToken('login_success_njupt')
     navigate('/index')
   }
