@@ -1,4 +1,4 @@
-import { CollectionCreateFormProps } from "@/types/Form";
+import { CollectionCreateFormProps } from "@/types/form";
 import { Form, Input, Modal } from "antd";
 
 const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({

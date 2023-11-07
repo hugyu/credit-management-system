@@ -23,7 +23,6 @@ router.post("/login", async (req, res) => {
       //有对应的用户名
       const sqlStr2 = `select password from user where username = '${username}'`;
         const userInfoRes = await sqlQuery(sqlStr2);
-        console.log(userInfoRes);
       if (
         userInfoRes.length &&
         userInfoRes[0].password === password 
@@ -46,7 +45,6 @@ router.post("/login", async (req, res) => {
     res.send({
       code: -1,
       message: "请求失败",
-      
     });
   }
 });

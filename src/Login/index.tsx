@@ -1,6 +1,5 @@
 import "./index.scss";
 import zxcvbn from "zxcvbn";
-
 import {
   LockOutlined,
   UserOutlined,
@@ -24,10 +23,10 @@ import {
 } from "antd";
 import { useState } from "react";
 import { http } from "../common/util";
-import { FieldLoginType, FieldReqType } from "@/types/Form";
 import { ResponseDataType } from "@/types/req";
 import { setToken } from "../common/token";
 import { useStore } from "../store/";
+import { FieldLoginType, FieldReqType } from "../types/form";
 
 function Login() {
   // 获取上下文 form 实例

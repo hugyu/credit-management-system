@@ -1,5 +1,5 @@
-export type ResponseDataType = {
-    code: number,
-    message: string,
-    data?:Array<any>
+export interface ResponseDataType<T=any> {
+    code: number;
+    message: string;
+    data?: T[] ;
 }

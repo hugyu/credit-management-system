@@ -1,11 +1,21 @@
 import "./index.scss";
-import { Cascader, Descriptions } from "antd";
+import { Cascader, Descriptions, message } from "antd";
 import { Button, Drawer, Form, Input, Select, Space } from "antd";
 import type { DescriptionsProps } from "antd";
-import { useState } from "react";
-import { AreaOption } from "@/types/Form";
+import { useEffect, useState } from "react";
+import { AreaOption } from "../../types/form";
+import { prefixSelector } from "../components/PrefixSelector";
+import { http } from "../../common/util";
+import { ResponseDataType } from "@/types/req";
+import { useStore } from "../../store";
+import { UserInfo } from "@/types/user";
+
 const { Option } = Select;
-function UserInfo() {
+// 配置message最大数量为1
+message.config({
+  maxCount: 1,
+});
+function UserInfoScreen() {
   // 控制Drawer是否打开
   const [open, setOpen] = useState(false);
   // 打开
@@ -20,43 +30,7 @@ function UserInfo() {
   const onFinish = (values: any) => {
     console.log("Received values of form: ", values);
   };
-  // 个人资料列表中的数据
-  const items: DescriptionsProps["items"] = [
-    {
-      key: "1",
-      label: "UserName",
-      children: "Zhou Maomao",
-    },
-    {
-      key: "2",
-      label: "Telephone",
-      children: "1810000000",
-    },
-    {
-      key: "3",
-      label: "BirthDate",
-      children: "2002.10",
-    },
-    {
-      key: "4",
-      label: "Gender",
-      children: "男",
-    },
-    {
-      key: "5",
-      label: "Address",
-      children:
-        "No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China",
-    },
-  ];
 
-  const prefixSelector = (
-    <Form.Item name="prefix" noStyle>
-      <Select style={{ width: 70 }} defaultValue={"86"}>
-        <Option value="86">+86</Option>
-      </Select>
-    </Form.Item>
-  );
   const options: AreaOption[] = [
     {
       value: "zhejiang",
@@ -79,10 +53,62 @@ function UserInfo() {
       ],
     },
   ];
-
+  // 省市选择变化回调
   const onChange = (value: any) => {
     console.log(value);
   };
+
+  // 获取用户信息
+  const { userStore } = useStore();
+  const [userInfo, setUserInfo] = useState<UserInfo[] | undefined>([]);
+
+  const handleDate = (date: string | undefined) => {
+    return date ? new Date(date).toISOString().split("T")[0] : "";
+  };
+  // 个人资料列表中的数据
+  const items: DescriptionsProps["items"] = [
+    {
+      key: "1",
+      label: "UserName",
+      children: `${userInfo?.[0]?.username}`,
+    },
+    {
+      key: "2",
+      label: "Telephone",
+      children: `${userInfo?.[0]?.userPhone}`,
+    },
+    {
+      key: "3",
+      label: "BirthDate",
+      children: handleDate(userInfo?.[0]?.birthDate),
+    },
+    {
+      key: "4",
+      label: "Gender",
+      children: `${userInfo?.[0]?.gender}`,
+    },
+    {
+      key: "5",
+      label: "Address",
+      children: `${userInfo?.[0]?.address}`,
+    },
+  ];
+  // 获取用户信息
+  const getUserInfo = async () => {
+    const res = await http.get(
+      `/getUserInfo?username=${userStore.getUserInfo()}`
+    );
+    const data: ResponseDataType<UserInfo> = res.data;
+    const userInfo = data.data;
+
+    setUserInfo(userInfo);
+    if (data.code === 2) {
+      message.warning(data.message, 1, showDrawer);
+    }
+  };
+  useEffect(() => {
+    getUserInfo();
+  }, []);
   return (
     <div className="userContainer">
       <div className="descriptionCard">
@@ -99,7 +125,7 @@ function UserInfo() {
         />
       </div>
       <Drawer
-        title="Create a new account"
+        title="Edit your detail"
         width={720}
         onClose={onClose}
         open={open}
@@ -128,7 +154,7 @@ function UserInfo() {
           <Form.Item label="Address">
             <Space.Compact>
               <Form.Item
-                name={"address"}
+                name={"cities"}
                 rules={[
                   { required: true, message: "Please select your address!" },
                 ]}
@@ -190,4 +216,4 @@ function UserInfo() {
     </div>
   );
 }
-export default UserInfo;
+export default UserInfoScreen;
