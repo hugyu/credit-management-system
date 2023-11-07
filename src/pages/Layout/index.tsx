@@ -9,78 +9,15 @@ import {
   LineChartOutlined,
   CalendarTwoTone,
 } from "@ant-design/icons";
-import {
-  Layout,
-  Menu,
-  Button,
-  theme,
-  Popconfirm,
-  Form,
-  Input,
-  Modal,
-} from "antd";
-import { useState } from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Layout, Menu, Button, theme, Popconfirm } from "antd";
+import { useEffect, useState } from "react";
+import { Outlet, Link, useLocation } from "react-router-dom";
+import CollectionCreateForm from "../components/CollectionCreateForm";
+import WelcomeContent from "../components/Welcome";
 const { Header, Sider, Content } = Layout;
-interface Values {
-  title: string;
-  description: string;
-  modifier: string;
-}
 
-interface CollectionCreateFormProps {
-  open: boolean;
-  onCreate: (values: Values) => void;
-  onCancel: () => void;
-}
-const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
-  open,
-  onCreate,
-  onCancel,
-}) => {
-  const [form] = Form.useForm();
-  return (
-    <Modal
-      open={open}
-      title="Record today's blood glucose level"
-      okText="Record"
-      cancelText="Cancel"
-      onCancel={onCancel}
-      onOk={() => {
-        form
-          .validateFields()
-          .then((values) => {
-            form.resetFields();
-            onCreate(values);
-          })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
-          });
-      }}
-    >
-      <Form
-        form={form}
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{ modifier: "public" }}
-      >
-        <Form.Item
-          name="bgValue"
-          label="blood glucose level"
-          rules={[
-            {
-              required: true,
-              message: "Please input the value of blood glucose!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-      </Form>
-    </Modal>
-  );
-};
 function LayoutScreen() {
+  // Sider是否收起
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer },
@@ -91,6 +28,19 @@ function LayoutScreen() {
     console.log("Received values of form: ", values);
     setOpen(false);
   };
+  // 判断当前路由 Content中的内容动态显示
+  const location = useLocation();
+  // 是否显示欢迎页面
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  useEffect(() => {
+    if (location.pathname === "/index" || location.pathname === "/index/") {
+      setShowWelcome(true);
+    } else {
+      setShowWelcome(false);
+    }
+  }, [location]);
+
   return (
     <div className="container">
       <Layout className="layout">
@@ -104,22 +54,22 @@ function LayoutScreen() {
               {
                 key: "1",
                 icon: <UserOutlined />,
-                label: <Link to={"/userInfo"}>用户</Link>,
+                label: <Link to={"/index/userInfo"}>用户</Link>,
               },
               {
                 key: "2",
                 icon: <GoldOutlined />,
-                label: <Link to={"/creditInfo"}>积分</Link>,
+                label: <Link to={"/index/creditInfo"}>积分</Link>,
               },
               {
                 key: "3",
                 icon: <ShopOutlined />,
-                label: <Link to={"/shop"}>商店</Link>,
+                label: <Link to={"/index/shop"}>商店</Link>,
               },
               {
                 key: "4",
                 icon: <LineChartOutlined />,
-                label: <Link to={"/dataAnalyze"}>分析</Link>,
+                label: <Link to={"/index/dataAnalyze"}>分析</Link>,
               },
             ]}
           />
@@ -173,7 +123,7 @@ function LayoutScreen() {
               background: colorBgContainer,
             }}
           >
-            <Outlet></Outlet>
+            {showWelcome ? <WelcomeContent /> : <Outlet />}
           </Content>
         </Layout>
       </Layout>
