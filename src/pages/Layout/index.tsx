@@ -11,11 +11,10 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Popconfirm } from "antd";
 import { useEffect, useState } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation ,useNavigate } from "react-router-dom";
 import CollectionCreateForm from "../components/CollectionCreateForm";
 import WelcomeContent from "../components/Welcome";
 import { useStore } from "../../store";
-import { clearToken } from "../../common/token";
 const { Header, Sider, Content } = Layout;
 
 function LayoutScreen() {
@@ -43,16 +42,16 @@ function LayoutScreen() {
     }
   }, [location]);
   // 获取用户名
-  const { userStore, loginStore } = useStore();
+  const { userStore,loginStore } = useStore();
   const name = userStore.getUserInfo();
 
   //退出登录
   const navigate = useNavigate();
   const onLogout = () => {
-    userStore.setUserInfo("");
-    loginStore.loginOut();
-    navigate("/login", { replace: true });
-  };
+    userStore.setUserInfo('')
+    loginStore.loginOut()
+    navigate('/login', { replace: true });
+  }
   return (
     <div className="container">
       <Layout className="layout">
@@ -113,7 +112,7 @@ function LayoutScreen() {
                   title="是否确认退出？"
                   okText="退出"
                   cancelText="取消"
-                  onConfirm={onLogout}
+                    onConfirm={onLogout}
                 >
                   <LogoutOutlined /> 退出
                 </Popconfirm>

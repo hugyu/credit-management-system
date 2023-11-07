@@ -20,4 +20,10 @@ export interface CreatFormValues {
     open: boolean;
     onCreate: (values: CreatFormValues) => void;
     onCancel: () => void;
+}
+  
+export interface AreaOption {
+    value: string;
+    label: string;
+    children?: AreaOption[];
   }

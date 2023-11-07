@@ -1,20 +1,26 @@
 import "./index.scss";
-import { Descriptions, Tooltip, Typography } from "antd";
+import { Cascader, Descriptions } from "antd";
 import { Button, Drawer, Form, Input, Select, Space } from "antd";
 import type { DescriptionsProps } from "antd";
 import { useState } from "react";
+import { AreaOption } from "@/types/Form";
+const { Option } = Select;
 function UserInfo() {
+  // 控制Drawer是否打开
   const [open, setOpen] = useState(false);
-  const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
-  };
+  // 打开
   const showDrawer = () => {
     setOpen(true);
   };
-
+  // 关闭
   const onClose = () => {
     setOpen(false);
   };
+  // 填写个人资料后的回调
+  const onFinish = (values: any) => {
+    console.log("Received values of form: ", values);
+  };
+  // 个人资料列表中的数据
   const items: DescriptionsProps["items"] = [
     {
       key: "1",
@@ -28,13 +34,13 @@ function UserInfo() {
     },
     {
       key: "3",
-      label: "Live",
-      children: "Hangzhou, Zhejiang",
+      label: "BirthDate",
+      children: "2002.10",
     },
     {
       key: "4",
-      label: "Remark",
-      children: "empty",
+      label: "Gender",
+      children: "男",
     },
     {
       key: "5",
@@ -43,24 +49,39 @@ function UserInfo() {
         "No. 18, Wantang Road, Xihu District, Hangzhou, Zhejiang, China",
     },
   ];
-  const provinceData = ["Zhejiang", "Jiangsu"];
-  type CityName = keyof typeof cityData;
-  const cityData = {
-    Zhejiang: ["Hangzhou", "Ningbo", "Wenzhou"],
-    Jiangsu: ["Nanjing", "Suzhou", "Zhenjiang"],
-  };
-  const [cities, setCities] = useState(cityData[provinceData[0] as CityName]);
-  const [secondCity, setSecondCity] = useState(
-    cityData[provinceData[0] as CityName][0]
+
+  const prefixSelector = (
+    <Form.Item name="prefix" noStyle>
+      <Select style={{ width: 70 }} defaultValue={"86"}>
+        <Option value="86">+86</Option>
+      </Select>
+    </Form.Item>
   );
+  const options: AreaOption[] = [
+    {
+      value: "zhejiang",
+      label: "Zhejiang",
+      children: [
+        {
+          value: "hangzhou",
+          label: "Hangzhou",
+        },
+      ],
+    },
+    {
+      value: "jiangsu",
+      label: "Jiangsu",
+      children: [
+        {
+          value: "nanjing",
+          label: "Nanjing",
+        },
+      ],
+    },
+  ];
 
-  const handleProvinceChange = (value: CityName) => {
-    setCities(cityData[value]);
-    setSecondCity(cityData[value][0]);
-  };
-
-  const onSecondCityChange = (value: CityName) => {
-    setSecondCity(value);
+  const onChange = (value: any) => {
+    console.log(value);
   };
   return (
     <div className="userContainer">
@@ -87,14 +108,6 @@ function UserInfo() {
             paddingBottom: 80,
           },
         }}
-        extra={
-          <Space>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button onClick={onClose} type="primary">
-              Submit
-            </Button>
-          </Space>
-        }
       >
         <Form
           name="complex-form"
@@ -103,51 +116,36 @@ function UserInfo() {
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
         >
-          <Form.Item label="Username">
-            <Space>
-              <Form.Item
-                name="username"
-                noStyle
-                rules={[{ required: true, message: "Username is required" }]}
-              >
-                <Input style={{ width: 160 }} placeholder="Please input" />
-              </Form.Item>
-              <Tooltip title="Useful information">
-                <Typography.Link href="#API">Need Help?</Typography.Link>
-              </Tooltip>
-            </Space>
+          <Form.Item
+            name="phoneNumber"
+            label="Phone Number"
+            rules={[
+              { required: true, message: "Please input your phone number!" },
+            ]}
+          >
+            <Input addonBefore={prefixSelector} style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="Address">
             <Space.Compact>
               <Form.Item
-                name={["address", "province"]}
-                noStyle
-                rules={[{ required: true, message: "Province is required" }]}
+                name={"address"}
+                rules={[
+                  { required: true, message: "Please select your address!" },
+                ]}
               >
-                <Select
-                  //@ts-ignore
-                  defaultValue={provinceData[0]}
-                  style={{ width: 120 }}
-                  onChange={handleProvinceChange}
-                  options={provinceData.map((province) => ({
-                    label: province,
-                    value: province,
-                  }))}
-                />
-                <Select
-                  style={{ width: 120 }}
-                  //@ts-ignore
-                  value={secondCity}
-                  onChange={onSecondCityChange}
-                  options={cities.map((city) => ({ label: city, value: city }))}
+                <Cascader
+                  options={options}
+                  onChange={onChange}
+                  placeholder="Please select"
                 />
               </Form.Item>
               <Form.Item
-                name={["address", "street"]}
-                noStyle
-                rules={[{ required: true, message: "Street is required" }]}
+                name={"street"}
+                rules={[
+                  { required: true, message: "Please input your street!" },
+                ]}
               >
-                <Input style={{ width: "50%" }} placeholder="Input street" />
+                <Input placeholder="Input your street"></Input>
               </Form.Item>
             </Space.Compact>
           </Form.Item>
@@ -170,6 +168,17 @@ function UserInfo() {
             >
               <Input placeholder="Input birth month" />
             </Form.Item>
+          </Form.Item>
+          <Form.Item
+            name="gender"
+            label="Gender"
+            rules={[{ required: true, message: "Please select gender!" }]}
+          >
+            <Select placeholder="select your gender">
+              <Option value="male">Male</Option>
+              <Option value="female">Female</Option>
+              <Option value="other">Other</Option>
+            </Select>
           </Form.Item>
           <Form.Item label=" " colon={false}>
             <Button type="primary" htmlType="submit">

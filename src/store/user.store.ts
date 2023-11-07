@@ -4,6 +4,8 @@ import { makeAutoObservable } from "mobx";
 
 class UserStore {
   username = "";
+  userPhone = '';
+  userAddress=''
   constructor() {
     makeAutoObservable(this);
   }
