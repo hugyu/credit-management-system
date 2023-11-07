@@ -1,7 +1,7 @@
 export interface UserInfo {
-    username: string,
-    userPhone: string,
-    gender: string,
-    address: string,
-    birthDate:string
+    username: string|undefined,
+    userPhone: string|undefined,
+    gender: string|undefined,
+    address: string|undefined,
+    birthDate:string|undefined
 }

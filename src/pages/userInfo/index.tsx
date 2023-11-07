@@ -26,29 +26,26 @@ function UserInfoScreen() {
   const onClose = () => {
     setOpen(false);
   };
-  // 填写个人资料后的回调
-  const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
-  };
+ 
 
   const options: AreaOption[] = [
     {
-      value: "zhejiang",
-      label: "Zhejiang",
+      value: "浙江",
+      label: "浙江",
       children: [
         {
-          value: "hangzhou",
-          label: "Hangzhou",
+          value: "杭州",
+          label: "杭州",
         },
       ],
     },
     {
-      value: "jiangsu",
-      label: "Jiangsu",
+      value: "江苏",
+      label: "江苏",
       children: [
         {
-          value: "nanjing",
-          label: "Nanjing",
+          value: "南京",
+          label: "南京",
         },
       ],
     },
@@ -61,7 +58,7 @@ function UserInfoScreen() {
   // 获取用户信息
   const { userStore } = useStore();
   const [userInfo, setUserInfo] = useState<UserInfo[] | undefined>([]);
-
+  // 处理日期格式
   const handleDate = (date: string | undefined) => {
     return date ? new Date(date).toISOString().split("T")[0] : "";
   };
@@ -106,6 +103,29 @@ function UserInfoScreen() {
       message.warning(data.message, 1, showDrawer);
     }
   };
+  const handleAddress = (cities: any,street: any)=> {
+  return cities[0]+cities[1]+street
+  }
+  const handleEdit = () => {
+    getUserInfo()
+    onClose()
+  }
+  //编辑用户信息
+  const editUserInfo = async (values: any) => {
+    const newUserInfo:UserInfo={
+      username: userInfo?.[0]?.username,
+      userPhone: values.phoneNumber,
+      gender: values.gender,
+      address: handleAddress(values.cities,values.street),
+      birthDate: values.year+'-'+values.month+'-'+values.day
+    }
+    const res = await http.post('/editUserInfo', { ...newUserInfo });
+    const data:ResponseDataType=res.data
+    if (data.code === 1) {
+      message.success(data.message,1,handleEdit)
+    }
+  }
+   
   useEffect(() => {
     getUserInfo();
   }, []);
@@ -137,7 +157,7 @@ function UserInfoScreen() {
       >
         <Form
           name="complex-form"
-          onFinish={onFinish}
+          onFinish={editUserInfo}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}
@@ -179,7 +199,7 @@ function UserInfoScreen() {
             <Form.Item
               name="year"
               rules={[{ required: true }]}
-              style={{ display: "inline-block", width: "calc(50% - 8px)" }}
+              style={{ display: "inline-block", width: "calc(31% - 8px)" }}
             >
               <Input placeholder="Input birth year" />
             </Form.Item>
@@ -188,11 +208,22 @@ function UserInfoScreen() {
               rules={[{ required: true }]}
               style={{
                 display: "inline-block",
-                width: "calc(50% - 8px)",
+                width: "calc(31% - 8px)",
                 margin: "0 8px",
               }}
             >
               <Input placeholder="Input birth month" />
+            </Form.Item>
+            <Form.Item
+              name="day"
+              rules={[{ required: true }]}
+              style={{
+                display: "inline-block",
+                width: "calc(31% - 6px)",
+                margin: "0 1px",
+              }}
+            >
+              <Input placeholder="Input birth day" />
             </Form.Item>
           </Form.Item>
           <Form.Item
