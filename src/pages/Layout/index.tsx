@@ -9,12 +9,14 @@ import {
   LineChartOutlined,
   CalendarTwoTone,
 } from "@ant-design/icons";
-import { Layout, Menu, Button, theme, Popconfirm } from "antd";
+import { Layout, Menu, Button, theme, Popconfirm, message } from "antd";
 import { useEffect, useState } from "react";
 import { Outlet, Link, useLocation ,useNavigate } from "react-router-dom";
 import CollectionCreateForm from "../components/CollectionCreateForm";
 import WelcomeContent from "../components/Welcome";
 import { useStore } from "../../store";
+import { http } from "../../common/util";
+import { ResponseDataType } from "@/types/req";
 const { Header, Sider, Content } = Layout;
 
 function LayoutScreen() {
@@ -25,8 +27,23 @@ function LayoutScreen() {
   } = theme.useToken();
   const [open, setOpen] = useState(false);
 
-  const onCreate = (values: any) => {
-    console.log("Received values of form: ", values);
+  const onCreate = async (values: any) => {
+    const today = new Date()
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要加 1
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
+    const res=await http.get(
+      `/recordCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&bgLevel=${values.bgValue}`
+    );
+    const data:ResponseDataType=res.data
+    if (data.code === 1) {
+      message.success(data.message,1)
+    } else if (data.code === 2) {
+      message.warning(data.message,1)
+    } else {
+      message.error('网络错误',1)
+    }
     setOpen(false);
   };
   // 判断当前路由 Content中的内容动态显示
