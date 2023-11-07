@@ -1,4 +1,5 @@
 export type ResponseDataType = {
     code: number,
-    message:string
+    message: string,
+    data?:Array<any>
 }

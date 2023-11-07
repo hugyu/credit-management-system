@@ -31,6 +31,7 @@ router.post("/login", async (req, res) => {
         res.send({
           code: 1,
           message: "登录成功",
+          data:[{username}]
         });
       
       } else {

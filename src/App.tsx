@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import "./App.css";
 import { getToken } from "./common/token";
 import Login from "./Login";
@@ -11,13 +16,7 @@ import Shop from "./pages/shop";
 import UserInfo from "./pages/userInfo";
 
 function App() {
-  const localToken = getToken();
-  const [token, setToken] = useState(localToken);
-
-  useEffect(() => {
-    const localToken = getToken();
-    setToken(localToken);
-  }, [localToken]);
+  const token = getToken();
 
   return (
     <Router>
@@ -29,12 +28,7 @@ function App() {
           <Route path="/" element={<Navigate to="/index" replace={true} />} />
         )}
         <Route path="/login" element={<Login />} />
-        <Route
-          path="/index"
-          element={
-            token ? <LayoutScreen /> : <Navigate to="/login" replace={true} />
-          }
-        >
+        <Route path="/index" element={<LayoutScreen />}>
           <Route path="userInfo" element={<UserInfo />} />
           <Route path="creditInfo" element={<CreditInfo />} />
           <Route path="shop" element={<Shop />} />

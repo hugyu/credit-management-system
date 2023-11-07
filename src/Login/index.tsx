@@ -27,6 +27,7 @@ import { http } from "../common/util";
 import { FieldLoginType, FieldReqType } from "@/types/Form";
 import { ResponseDataType } from "@/types/req";
 import { setToken } from "../common/token";
+import { useStore } from "../store/";
 
 function Login() {
   // 获取上下文 form 实例
@@ -55,34 +56,38 @@ function Login() {
   // 登录逻辑
   const loginReq = async (formLoginValue: FieldLoginType) => {
     const res = await http.post("/login", { ...formLoginValue });
-    const data: ResponseDataType = res.data
+    const data: ResponseDataType = res.data;
     if (data.code === 1) {
-      message.success(data.message, 1,loginSuccess)
+      const username = res.data.data[0].username;
+      userStore.setUserInfo(username);
+      message.success(data.message, 1, loginSuccess);
     } else if (data.code === 2) {
-      message.error(data.message,2)
+      message.error(data.message, 2);
     } else if (data.code === -1) {
-      message.warning(data.message,2)
+      message.warning(data.message, 2);
     }
   };
   // 登录后的操作
   const loginSuccess = () => {
-    console.log('success');
-    
-    setToken('login_success_njupt')
-    navigate('/index')
-  }
+    console.log("success");
+    setToken("login_success_njupt");
+    navigate("/index");
+  };
   // 注册逻辑
   const registerReq = async (formReqValue: FieldReqType) => {
     const res = await http.post("/register", { ...formReqValue });
-    const data:ResponseDataType=res.data
+    const data: ResponseDataType = res.data;
     if (data.code === -2) {
-      message.error(data.message,2,()=>form.resetFields())
+      message.error(data.message, 2, () => form.resetFields());
     } else if (data.code === -1) {
-      message.warning('网络错误',2)
+      message.warning("网络错误", 2);
     } else if (data.code === 1) {
-      message.success(data.message,2,onClose)
+      message.success(data.message, 2, onClose);
     }
   };
+  // 状态管理
+  const { userStore } = useStore();
+
   return (
     <div className="container">
       <div className="bg-topLeft"></div>
