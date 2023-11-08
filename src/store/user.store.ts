@@ -1,11 +1,12 @@
 // 用户模块
 
+import { getToken } from "../common/token";
 import { makeAutoObservable } from "mobx";
 
 class UserStore {
-  username = "";
-  userPhone = '';
-  userAddress=''
+  username = getToken() || "";
+  userPhone = "";
+  userAddress = "";
   constructor() {
     makeAutoObservable(this);
   }

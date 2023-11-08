@@ -59,6 +59,8 @@ function Login() {
     if (data.code === 1) {
       const username = res.data.data[0].username;
       userStore.setUserInfo(username);
+      setToken(username);
+
       message.success(data.message, 1, loginSuccess);
     } else if (data.code === 2) {
       message.error(data.message, 2);
@@ -69,7 +71,6 @@ function Login() {
   // 登录后的操作
   const loginSuccess = () => {
     console.log("success");
-    setToken("login_success_njupt");
     navigate("/index");
   };
   // 注册逻辑

@@ -11,7 +11,7 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu, Button, theme, Popconfirm, message } from "antd";
 import { useEffect, useState } from "react";
-import { Outlet, Link, useLocation ,useNavigate } from "react-router-dom";
+import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
 import CollectionCreateForm from "../components/CollectionCreateForm";
 import WelcomeContent from "../components/Welcome";
 import { useStore } from "../../store";
@@ -28,21 +28,23 @@ function LayoutScreen() {
   const [open, setOpen] = useState(false);
 
   const onCreate = async (values: any) => {
-    const today = new Date()
+    const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要加 1
-    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, "0"); // 月份从 0 开始，需要加 1
+    const day = String(today.getDate()).padStart(2, "0");
     const formattedDate = `${year}-${month}-${day}`;
-    const res=await http.get(
-      `/recordCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&bgLevel=${values.bgValue}`
+    const res = await http.get(
+      `/recordCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&bgLevel=${
+        values.bgValue
+      }`
     );
-    const data:ResponseDataType=res.data
+    const data: ResponseDataType = res.data;
     if (data.code === 1) {
-      message.success(data.message,1)
+      message.success(data.message, 1);
     } else if (data.code === 2) {
-      message.warning(data.message,1)
+      message.warning(data.message, 1);
     } else {
-      message.error('网络错误',1)
+      message.error("网络错误", 1);
     }
     setOpen(false);
   };
@@ -59,16 +61,23 @@ function LayoutScreen() {
     }
   }, [location]);
   // 获取用户名
-  const { userStore,loginStore } = useStore();
+  const { userStore, loginStore } = useStore();
   const name = userStore.getUserInfo();
 
   //退出登录
   const navigate = useNavigate();
   const onLogout = () => {
-    userStore.setUserInfo('')
-    loginStore.loginOut()
-    navigate('/login', { replace: true });
-  }
+    userStore.setUserInfo("");
+    loginStore.loginOut();
+    navigate("/login", { replace: true });
+  };
+  // 菜单栏根据路由 动态选中
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([
+    location.pathname,
+  ]);
+  const handleMenuSelect = ({ key }: { key: string }) => {
+    setSelectedKeys([key]);
+  };
   return (
     <div className="container">
       <Layout className="layout">
@@ -77,25 +86,26 @@ function LayoutScreen() {
           <Menu
             theme="dark"
             mode="inline"
-            defaultSelectedKeys={["1"]}
+            selectedKeys={selectedKeys}
+            onSelect={handleMenuSelect}
             items={[
               {
-                key: "1",
+                key: "/index/userInfo",
                 icon: <UserOutlined />,
                 label: <Link to={"/index/userInfo"}>用户</Link>,
               },
               {
-                key: "2",
+                key: "/index/creditInfo",
                 icon: <GoldOutlined />,
                 label: <Link to={"/index/creditInfo"}>积分</Link>,
               },
               {
-                key: "3",
+                key: "/index/shop",
                 icon: <ShopOutlined />,
                 label: <Link to={"/index/shop"}>商店</Link>,
               },
               {
-                key: "4",
+                key: "/index/dataAnalyze",
                 icon: <LineChartOutlined />,
                 label: <Link to={"/index/dataAnalyze"}>分析</Link>,
               },
@@ -129,7 +139,7 @@ function LayoutScreen() {
                   title="是否确认退出？"
                   okText="退出"
                   cancelText="取消"
-                    onConfirm={onLogout}
+                  onConfirm={onLogout}
                 >
                   <LogoutOutlined /> 退出
                 </Popconfirm>
