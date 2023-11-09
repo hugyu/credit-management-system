@@ -9,6 +9,7 @@ import { http } from "../../common/util";
 import { ResponseDataType } from "@/types/req";
 import { useStore } from "../../store";
 import { UserInfo } from "@/types/user";
+import { handleDate } from "../../common/tool";
 
 const { Option } = Select;
 // 配置message最大数量为1
@@ -58,10 +59,7 @@ function UserInfoScreen() {
   // 获取用户信息
   const { userStore } = useStore();
   const [userInfo, setUserInfo] = useState<UserInfo[] | undefined>([]);
-  // 处理日期格式
-  const handleDate = (date: string | undefined) => {
-    return date ? new Date(date).toISOString().split("T")[0] : "";
-  };
+  
   // 个人资料列表中的数据
   const items: DescriptionsProps["items"] = [
     {
@@ -128,7 +126,7 @@ function UserInfoScreen() {
    
   useEffect(() => {
     getUserInfo();
-  }, []);
+  }, [userStore]);
   return (
     <div className="userContainer">
       <div className="descriptionCard">

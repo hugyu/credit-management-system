@@ -17,6 +17,7 @@ import WelcomeContent from "../components/Welcome";
 import { useStore } from "../../store";
 import { http } from "../../common/util";
 import { ResponseDataType } from "@/types/req";
+import { formatDate } from "../../common/tool";
 const { Header, Sider, Content } = Layout;
 
 function LayoutScreen() {
@@ -27,19 +28,19 @@ function LayoutScreen() {
   } = theme.useToken();
   const [open, setOpen] = useState(false);
 
+  
+  // 每日签到
   const onCreate = async (values: any) => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0"); // 月份从 0 开始，需要加 1
-    const day = String(today.getDate()).padStart(2, "0");
-    const formattedDate = `${year}-${month}-${day}`;
+   
+    const formattedDate = formatDate()
     const res = await http.get(
-      `/recordCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&bgLevel=${
+      `/signIn?username=${userStore.getUserInfo()}&date=${formattedDate}&bgLevel=${
         values.bgValue
       }`
     );
     const data: ResponseDataType = res.data;
     if (data.code === 1) {
+      
       message.success(data.message, 1);
     } else if (data.code === 2) {
       message.warning(data.message, 1);
@@ -125,14 +126,14 @@ function LayoutScreen() {
               }}
             />
             <div className="user-info">
-              <span
+              <Button
                 className="signIn"
                 onClick={() => {
                   setOpen(true);
                 }}
               >
                 <CalendarTwoTone twoToneColor="#52c41a" /> 每日签到
-              </span>
+              </Button>
               <span className="user-name">{`用户 : ${name}`}</span>
               <span className="user-logout">
                 <Popconfirm

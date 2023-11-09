@@ -1,35 +1,31 @@
 import "./index.scss";
 import CountUp from "react-countup";
-import { Col, Drawer, Row, Statistic, Upload } from "antd";
+import { Col, Drawer, Row, Select, Statistic, Upload } from "antd";
 import { Button, Form, Input } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import { Space, Table, Tag } from "antd";
+import { Table, Tag } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { useState } from "react";
-interface DataType {
-  key: string;
-  name: string;
-  age: number;
-  address: string;
-  tags: string[];
-}
-
+import { useEffect, useState } from "react";
+import { CreditType, DataType } from "@/types/credit";
+import { http } from "../../common/util";
+import { useStore } from "../../store";
+import { formatDate, handleDate } from "../../common/tool";
+// table 数据类型定义
 const columns: ColumnsType<DataType> = [
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
-    render: (text) => <a>{text}</a>,
+    title: "Index",
+    dataIndex: "index",
+    key: "index",
   },
   {
-    title: "Age",
-    dataIndex: "age",
-    key: "age",
+    title: "Credit",
+    dataIndex: "credit",
+    key: "credit",
   },
   {
-    title: "Address",
-    dataIndex: "address",
-    key: "address",
+    title: "Date",
+    dataIndex: "date",
+    key: "date",
   },
   {
     title: "Tags",
@@ -38,88 +34,60 @@ const columns: ColumnsType<DataType> = [
     render: (_, { tags }) => (
       <>
         {tags.map((tag) => {
-          let color = tag.length > 5 ? "geekblue" : "green";
-          if (tag === "loser") {
-            color = "volcano";
-          }
+          let color = tag.length > 6 ? "geekblue" : "green";
+
           return (
             <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
+              {tag}
             </Tag>
           );
         })}
       </>
     ),
   },
-  {
-    title: "Action",
-    key: "action",
-    render: (_, record) => (
-      <Space size="middle">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
-      </Space>
-    ),
-  },
 ];
 
-const data: DataType[] = [
-  {
-    key: "1",
-    name: "John Brown",
-    age: 32,
-    address: "New York No. 1 Lake Park",
-    tags: ["nice", "developer"],
-  },
-  {
-    key: "2",
-    name: "Jim Green",
-    age: 42,
-    address: "London No. 1 Lake Park",
-    tags: ["loser"],
-  },
-  {
-    key: "3",
-    name: "Joe Black",
-    age: 32,
-    address: "Sydney No. 1 Lake Park",
-    tags: ["cool", "teacher"],
-  },
-];
 const formatter = (value: number) => <CountUp end={value} separator="," />;
+// Form layout
+const layout = {
+  labelCol: { span: 8 },
+  wrapperCol: { span: 16 },
+};
+/* eslint-disable no-template-curly-in-string */
+const validateMessages = {
+  required: "${label} is required!",
+  types: {
+    email: "${label} is not a valid email!",
+    number: "${label} is not a valid number!",
+  },
+  number: {
+    range: "${label} must be between ${min} and ${max}",
+  },
+};
+/* eslint-enable no-template-curly-in-string */
+// table 页面每页的数据条数
 
+const PAGE_SIZE = 4;
 function CreditInfo() {
+  // 控制兑换积分drawer是否打开
   const [open, setOpen] = useState(false);
-
+  // 打开
   const showDrawer = () => {
     setOpen(true);
   };
-
+  // 关闭
   const onClose = () => {
     setOpen(false);
   };
-
-  const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+  // 上传积分
+  const onFinish = async (values: any) => {
+    const formattedDate = formatDate();
+    const res = await http.get(
+      `/addCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&credit=${creditValue}`
+    );
   };
 
-  /* eslint-disable no-template-curly-in-string */
-  const validateMessages = {
-    required: "${label} is required!",
-    types: {
-      email: "${label} is not a valid email!",
-      number: "${label} is not a valid number!",
-    },
-    number: {
-      range: "${label} must be between ${min} and ${max}",
-    },
-  };
-  /* eslint-enable no-template-curly-in-string */
-
-  const onFinish = (values: any) => {
-    console.log(values);
-  };
+  // 处理上传的文件
   const normFile = (e: any) => {
     console.log("Upload event:", e);
     if (Array.isArray(e)) {
@@ -127,17 +95,106 @@ function CreditInfo() {
     }
     return e?.fileList;
   };
+  const { userStore } = useStore();
+  const [creditInfo, setCreditInfo] = useState<CreditType>();
+  // 页码设置
+  const [currentPage, setCurrentPage] = useState(1);
+  // 页面页码设置
+  const handlePageChange = (page: number) => {
+    const endPage = Math.floor((dataSource?.length as number) / PAGE_SIZE);
+    let newPage = page + 1;
+    if (newPage == endPage) {
+      setCurrentPage(1);
+    } else {
+      setCurrentPage(newPage);
+    }
+  };
+  const paginationProps = {
+    current: currentPage, //当前页码
+    pageSize: PAGE_SIZE, // 每页数据条数
+    showTotal: () => <span>总共{dataSource?.length}项</span>,
+
+    onChange: (page: number) => handlePageChange(page), //改变页码的函数
+    hideOnSinglePage: false,
+    showSizeChanger: false,
+  };
+  const [dataSource, setDataSource] = useState<DataType[]>();
+
+  // 应该是获取总的记录
+  const getCreditInfo = async () => {
+    let value = 0;
+    let day = 0;
+    let dataSource: DataType[] = [];
+    // 签到的积分
+    const res = await http.get(
+      `/getSignInList?username=${userStore.getUserInfo()}`
+    );
+    const resData = res.data.data;
+
+    resData.map((data: any, index: number) => {
+      let object = {
+        key: String(index + 1),
+        index: index + 1,
+        date: handleDate(data.date),
+        credit: data.credit,
+        tags: ["SignIn"],
+      };
+      dataSource.push(object);
+
+      value += data.credit;
+      if (data.credit === 1) {
+        day++;
+      }
+    });
+    // 参加活动增加的积分
+    const res2 = await http.get(
+      `/getAddCredit?username=${userStore.getUserInfo()}`
+    );
+    if (res2.data.code === 1) {
+      const res2Data = res2.data.data;
+      console.log(res2Data);
+      res2Data.map((data: any, index: number) => {
+        let object = {
+          key: String(index + 1 + res.data.data.length),
+          index: index + 1 + res.data.data.length,
+          date: handleDate(data.date),
+          credit: data.credit,
+          tags: ["CheckIn"],
+        };
+        dataSource.push(object);
+
+        value += data.credit;
+      });
+    }
+
+    const resCreditInfo: CreditType = { dayCount: day, creditValue: value };
+    setCreditInfo(resCreditInfo);
+    setDataSource(dataSource);
+  };
+  // 增加积分的分值
+  const [creditValue, setCreditValue] = useState(0);
+  // 增加积分时 select选择框的变化回调
+  const handleChange = (value: number) => {
+    setCreditValue(value);
+  };
+  useEffect(() => {
+    getCreditInfo();
+  }, []);
   return (
     <div className="Creditcontainer">
       <div className="creHead">
         <Row gutter={50}>
           <Col span={12}>
-            <Statistic title="Credit" value={112893} formatter={formatter} />
+            <Statistic
+              title="Credit"
+              value={creditInfo?.creditValue}
+              formatter={formatter}
+            />
           </Col>
           <Col span={12}>
             <Statistic
               title="Cumulative Sign-in Days"
-              value={5}
+              value={creditInfo?.dayCount}
               formatter={formatter}
             />
           </Col>
@@ -151,7 +208,11 @@ function CreditInfo() {
           兑换积分
         </Button>
       </div>
-      <Table columns={columns} dataSource={data} />;
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        pagination={paginationProps}
+      />
       <Drawer
         title="Add credit"
         width={650}
@@ -170,8 +231,15 @@ function CreditInfo() {
           style={{ maxWidth: 600 }}
           validateMessages={validateMessages}
         >
-          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item name="theme" label="Theme" rules={[{ required: true }]}>
+            <Select
+              onChange={handleChange}
+              options={[
+                { value: 3, label: "完成门诊随访" },
+                { value: 5, label: "参加扩展活动" },
+                { value: 8, label: "参加科研招募" },
+              ]}
+            />
           </Form.Item>
 
           <Form.Item name="introduction" label="Introduction">

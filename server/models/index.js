@@ -5,5 +5,8 @@ module.exports = (app) => {
   app.use(require("./register"));
   app.use(require("./getUserInfo"));
   app.use(require("./editUserInfo"));
-  app.use(require("./recordCredit"));
+  app.use(require("./signIn"));
+  app.use(require("./getSignInList"));
+  app.use(require("./addCredit"));
+  app.use(require("./getAddCredit"));
 };

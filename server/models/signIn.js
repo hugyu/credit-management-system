@@ -6,11 +6,11 @@ const today = new Date()
     const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要加 1
     const day = String(today.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
-router.get("/recordCredit", async (req, res) => {
+router.get("/signIn", async (req, res) => {
   const { username, date, bgLevel } = req.query;
   try {
     const createTableSql = `
-    CREATE TABLE IF NOT EXISTS userCredit (
+    CREATE TABLE IF NOT EXISTS userSignIn (
         id INT AUTO_INCREMENT PRIMARY KEY,
         username VARCHAR(50) NOT NULL,
         credit INT NOT NULL DEFAULT 0,
@@ -19,18 +19,12 @@ router.get("/recordCredit", async (req, res) => {
       ) ENGINE=InnoDB;      
     `;
       await sqlQuery(createTableSql);
-      const dateQuery = `SELECT date FROM userCredit WHERE date = '${formattedDate}'`
+      const dateQuery = `SELECT date FROM userSignIn WHERE date = '${formattedDate}'`
       const dateList = await sqlQuery(dateQuery);
       if (!dateList.length) {
-        const creditQuery = `SELECT credit FROM userCredit WHERE username = '${username}'`;
-        const currentCredit = await sqlQuery(creditQuery);
-    
-        // 获取当前credit值
-        const credit = currentCredit[0].credit;
-        // 将credit值加1
-        const newCredit = credit + 1;
+
         //说明没有签到过
-        const sqlStr = `insert into userCredit (username,credit,bgLevel,date) values("${username}", ${newCredit},${bgLevel},"${date}")  `;
+        const sqlStr = `insert into userSignIn (username,credit,bgLevel,date) values("${username}", 1,${bgLevel},"${date}")  `;
         await sqlQuery(sqlStr);
         res.send({
           code: 1,
