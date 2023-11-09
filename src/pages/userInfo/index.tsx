@@ -156,6 +156,7 @@ function UserInfoScreen() {
         <Form
           name="complex-form"
           onFinish={editUserInfo}
+          initialValues={userInfo?.[0]}
           labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
           style={{ maxWidth: 600 }}

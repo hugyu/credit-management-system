@@ -66,7 +66,6 @@ const validateMessages = {
 };
 /* eslint-enable no-template-curly-in-string */
 // table 页面每页的数据条数
-
 const PAGE_SIZE = 4;
 function CreditInfo() {
   // 控制兑换积分drawer是否打开
@@ -104,19 +103,12 @@ function CreditInfo() {
   const [currentPage, setCurrentPage] = useState(1);
   // 页面页码设置
   const handlePageChange = (page: number) => {
-    const endPage = Math.floor((dataSource?.length as number) / PAGE_SIZE);
-    let newPage = page + 1;
-    if (newPage == endPage) {
-      setCurrentPage(1);
-    } else {
-      setCurrentPage(newPage);
-    }
+    setCurrentPage(page)
   };
   const paginationProps = {
     current: currentPage, //当前页码
     pageSize: PAGE_SIZE, // 每页数据条数
     showTotal: () => <span>总共{dataSource?.length}项</span>,
-
     onChange: (page: number) => handlePageChange(page), //改变页码的函数
     hideOnSinglePage: false,
     showSizeChanger: false,
