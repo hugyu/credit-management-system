@@ -42,7 +42,7 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
               },
             ]}
           >
-            <Input />
+            <Input placeholder="请输入空腹时的血糖值" suffix={'mmol/L'} />
           </Form.Item>
         </Form>
       </Modal>

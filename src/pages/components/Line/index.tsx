@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 function echartInit(
   node: any,
   xData: string[],
-  sData: number[],
+  sData: string[],
   title: string
 ) {
   const myChart = echarts.init(node);
@@ -15,20 +15,30 @@ function echartInit(
     },
     tooltip: {},
     xAxis: {
+      type: "category",
       data: xData,
     },
-    yAxis: {},
+    yAxis: {
+      type: "value",
+    },
     series: [
       {
-        name: "销量",
-        type: "bar",
+        name: "血糖",
+        type: "line",
         data: sData,
+        smooth: true,
       },
     ],
+    markLine: {
+      data: [
+        { yAxis: 3.9, label: { show: false } },
+        { yAxis: 5.2, label: { show: false } },
+      ],
+    },
   });
 }
 
-function Bar({
+function Line({
   style,
   xData,
   sData,
@@ -36,17 +46,15 @@ function Bar({
 }: {
   style: any;
   xData: string[];
-  sData: number[];
+  sData: string[];
   title: string;
 }) {
-  // 1. 先不考虑传参问题  静态数据渲染到页面中
-  // 2. 把那些用户可能定制的参数 抽象props (1.定制大小 2.data 以及说明文字)
   const nodeRef = useRef(null);
   useEffect(() => {
     echartInit(nodeRef.current, xData, sData, title);
-  }, [xData, sData,title]);
+  }, [xData, sData, title]);
 
   return <div ref={nodeRef} style={style}></div>;
 }
 
-export default Bar;
+export default Line;

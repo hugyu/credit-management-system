@@ -1,6 +1,6 @@
 import "./index.scss";
 import CountUp from "react-countup";
-import { Col, Drawer, Row, Select, Statistic, Upload } from "antd";
+import { Col, Drawer, message, Row, Select, Statistic, Upload } from "antd";
 import { Button, Form, Input } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import { Table, Tag } from "antd";
@@ -85,6 +85,9 @@ function CreditInfo() {
     const res = await http.get(
       `/addCredit?username=${userStore.getUserInfo()}&date=${formattedDate}&credit=${creditValue}`
     );
+    if (res.data.code === 1) {
+      message.success(res.data.message, 1);
+    }
   };
 
   // 处理上传的文件
