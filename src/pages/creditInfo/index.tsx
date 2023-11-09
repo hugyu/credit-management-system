@@ -124,7 +124,7 @@ function CreditInfo() {
   const [dataSource, setDataSource] = useState<DataType[]>();
 
   // 应该是获取总的记录
-  const getCreditInfo = async () => {
+   const getCreditInfo = async () => {
     let value = 0;
     let day = 0;
     let dataSource: DataType[] = [];
@@ -155,7 +155,6 @@ function CreditInfo() {
     );
     if (res2.data.code === 1) {
       const res2Data = res2.data.data;
-      console.log(res2Data);
       res2Data.map((data: any, index: number) => {
         let object = {
           key: String(index + 1 + res.data.data.length),
@@ -169,7 +168,19 @@ function CreditInfo() {
         value += data.credit;
       });
     }
-
+    
+    // 已经购买了 消耗过的积分
+    const res3 = await http.get(
+      `/getBuyItem?username=${userStore.getUserInfo()}`
+    );
+    if (res3.data.code === 1) {
+      const res3Data = res3.data.data;
+      console.log(res3Data);
+      
+      res3Data.map((data: any) => {
+        value -= data.credit;
+      });
+    }
     const resCreditInfo: CreditType = { dayCount: day, creditValue: value };
     setCreditInfo(resCreditInfo);
     setDataSource(dataSource);

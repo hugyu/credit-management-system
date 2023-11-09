@@ -1,18 +1,82 @@
-import { Card, Col, Row, Modal } from "antd";
+import { Card, Col, Row, Modal, message, notification } from "antd";
 import Meta from "antd/es/card/Meta";
-import { ExclamationCircleFilled } from "@ant-design/icons";
+import { ExclamationCircleFilled, SmileOutlined } from "@ant-design/icons";
+import { useStore } from "../../store";
 import "./index.scss";
+import { http } from "../../common/util";
+import { formatDate } from "../../common/tool";
 const { confirm } = Modal;
 function Shop() {
-  const showPromiseConfirm = () => {
+  const [api, contextHolder] = notification.useNotification();
+  const openNotification = () => {
+    api.open({
+      message: "订单信息",
+      description: "你兑换的物品正在准备中哦~",
+      icon: <SmileOutlined style={{ color: "#108ee9" }} />,
+    });
+  };
+  const { userStore } = useStore();
+  const getCreditInfo = async () => {
+    let value = 0;
+    // 签到的积分
+    const res = await http.get(
+      `/getSignInList?username=${userStore.getUserInfo()}`
+    );
+    const resData = res.data.data;
+    resData.map((data: any) => {
+      value += data.credit;
+    });
+    // 参加活动增加的积分
+    const res2 = await http.get(
+      `/getAddCredit?username=${userStore.getUserInfo()}`
+    );
+    if (res2.data.code === 1) {
+      const res2Data = res2.data.data;
+      res2Data.map((data: any) => {
+        value += data.credit;
+      });
+    }
+    // 已经购买了 消耗过的积分
+    const res3 = await http.get(
+      `/getBuyItem?username=${userStore.getUserInfo()}`
+    );
+    if (res3.data.code === 1) {
+      const res3Data = res3.data.data;
+      console.log(res3Data);
+
+      res3Data.map((data: any) => {
+        value -= data.credit;
+      });
+    }
+    return value;
+  };
+  const showPromiseConfirm = (event: any) => {
+    const cardElement = event.currentTarget;
+    const metaElementDescrip = cardElement.querySelector(
+      ".ant-card-meta-description"
+    );
+    const metaElementTitle = cardElement.querySelector(".ant-card-meta-title");
+    const description = metaElementDescrip.textContent;
+    const itemName = metaElementTitle.textContent;
+    const credit = parseInt(description);
+    const formattedDate = formatDate();
+
     confirm({
       title: "Do you want to redeem this item?",
       icon: <ExclamationCircleFilled />,
       content: "When clicked the OK button, you will redeem this",
-      onOk() {
-        return new Promise((resolve, reject) => {
-          setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-        }).catch(() => console.log("Oops errors!"));
+      async onOk() {
+        const allCredit = await getCreditInfo();
+        if (credit > allCredit) {
+          message.error("积分不足", 1);
+        } else {
+          const res = await http.get(
+            `/buyItem?username=${userStore.getUserInfo()}&date=${formattedDate}&credit=${credit}&itemName=${itemName}`
+          );
+          if (res.data.code === 1) {
+            message.success("购买成功", 1, openNotification);
+          }
+        }
       },
       onCancel() {},
     });
@@ -39,7 +103,7 @@ function Shop() {
               }
               onClick={showPromiseConfirm}
             >
-              <Meta title="采血针" description="39积分" />
+              <Meta title="采血针" description="4积分" />
             </Card>
           </Col>
           <Col className="gutter-row" span={6}>
@@ -54,7 +118,7 @@ function Shop() {
               }
               onClick={showPromiseConfirm}
             >
-              <Meta title="血糖试纸" description="99积分" />
+              <Meta title="血糖试纸" description="9积分" />
             </Card>
           </Col>
           <Col className="gutter-row" span={6}>
@@ -69,7 +133,7 @@ function Shop() {
               }
               onClick={showPromiseConfirm}
             >
-              <Meta title="血糖仪" description="599积分" />
+              <Meta title="血糖仪" description="59积分" />
             </Card>
           </Col>
 
@@ -85,10 +149,11 @@ function Shop() {
               }
               onClick={showPromiseConfirm}
             >
-              <Meta title="华为手表" description="999积分" />
+              <Meta title="华为手表" description="99积分" />
             </Card>
           </Col>
         </Row>
+        {contextHolder}
       </div>
     </div>
   );

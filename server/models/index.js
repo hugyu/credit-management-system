@@ -9,4 +9,7 @@ module.exports = (app) => {
   app.use(require("./getSignInList"));
   app.use(require("./addCredit"));
   app.use(require("./getAddCredit"));
+  app.use(require("./buyItem"));
+  app.use(require("./getBuyItemList"));
+
 };
